@@ -69,7 +69,11 @@ func main() {
 	}
 
 	if showversion {
-		fmt.Printf("Version: %s\n", version)
+		fmt.Println(fmt.Sprintf("Version: %s", version))
+		latest, _, _, err := gitrel.Latest("axllent/dnsmonitor", "dnsmonitor")
+		if err == nil && latest != version {
+			fmt.Printf("Update available: %s\nRun `%s -u` to update.\n", latest, os.Args[0])
+		}
 		return
 	}
 
