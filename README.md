@@ -2,14 +2,15 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/axllent/dnsmonitor)](https://goreportcard.com/report/github.com/axllent/dnsmonitor)
 
-DNSMonitor is a small commandline utility which queries a DNS for a specific hostname (or hostnames) on a regular interval, optionally alerting you (Pushbullet and/or Gotify) on any DNS change.
+DNSMonitor is a small commandline utility which queries a DNS server for a specific hostname(s) records on a regular interval, optionally alerting you (Pushbullet and/or Gotify) on any DNS change.
+
 
 ## Features
 
 - Defaults to the network-configured DNS, however a separate DNS server can be specified
 - Polling interval (default every 5 minutes)
-- Supports querying of A, MX, CNAME, TXT & NS records (see usage)
-- Optionally send change alerts through [Pushbullet](https://www.pushbullet.com/) and/or [Gotify](https://gotify.net/)
+- Supports querying of A, MX, CNAME, TXT & NS records ([see usage](#usage-examples))
+- Optionally send update alerts to [Pushbullet](https://www.pushbullet.com/) and/or [Gotify](https://gotify.net/)
 
 
 ## Usage examples
@@ -85,7 +86,7 @@ dnsmonitor -u
 ```
 
 
-## Compiling from source
+## Instaling from source
 
 Go >= 1.11 required:
 
