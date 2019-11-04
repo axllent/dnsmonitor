@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/axllent/gitrel"
+	"github.com/axllent/ghru"
 	"github.com/spf13/pflag"
 )
 
@@ -70,15 +70,15 @@ func main() {
 
 	if showversion {
 		fmt.Println(fmt.Sprintf("Version: %s", version))
-		latest, _, _, err := gitrel.Latest("axllent/dnsmonitor", "dnsmonitor")
-		if err == nil && latest != version {
+		latest, _, _, err := ghru.Latest("axllent/dnsmonitor", "dnsmonitor")
+		if err == nil && ghru.GreaterThan(latest, version) {
 			fmt.Printf("Update available: %s\nRun `%s -u` to update.\n", latest, os.Args[0])
 		}
 		return
 	}
 
 	if update {
-		rel, err := gitrel.Update("axllent/dnsmonitor", "dnsmonitor", version)
+		rel, err := ghru.Update("axllent/dnsmonitor", "dnsmonitor", version)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
