@@ -31,4 +31,3 @@ release:
 	$(call build,openbsd,386)
 	$(call build,openbsd,amd64)
 	$(call build,openbsd,arm)
-	$(call build,solaris,amd64)
