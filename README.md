@@ -2,7 +2,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/axllent/dnsmonitor)](https://goreportcard.com/report/github.com/axllent/dnsmonitor)
 
-DNSMonitor is a small commandline utility which queries a DNS server for a specific hostname(s) records on a regular interval, optionally alerting you (Pushbullet and/or Gotify) on any DNS change.
+DNSMonitor is a small commandline utility which queries a DNS server for a specific hostname(s) records on a regular interval, optionally alerting you ([Gotify](https://gotify.net/)) on any DNS change.
 
 
 ## Features
@@ -10,7 +10,7 @@ DNSMonitor is a small commandline utility which queries a DNS server for a speci
 - Defaults to the network-configured DNS, however a separate DNS server can be specified
 - Polling interval (default every 5 minutes)
 - Supports querying of A, MX, CNAME, TXT & NS records ([see usage](#usage-examples))
-- Optionally send update alerts to [Pushbullet](https://www.pushbullet.com/) and/or [Gotify](https://gotify.net/)
+- Optionally send update alerts to [Gotify](https://gotify.net/)
 
 
 ## Usage examples
@@ -42,21 +42,9 @@ See `dnsmonitor -h` for all options.
 
 ## Notifications
 
-Currently Pushbullet & Gotify notifications are supported.
+Currently sending notifications to Gotify is supported.
 
 Create a default configuration file in `~/.config/dnsmonitor.json` or use the `-c` flag to spefify an alternative configuration file and set the values:
-
-
-### Pushbullet
-
-You can find your Access Token on https://www.pushbullet.com/#settings/account and the device name is exactly as it appears in your list of devices.
-
-```json
-{
-  "pushbullet_token":"<token>",
-  "pushbullet_device":"<device name>"
-}
-```
 
 
 ### Gotify
