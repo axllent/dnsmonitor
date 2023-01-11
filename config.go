@@ -7,10 +7,6 @@ import (
 
 // Config struct
 type Config struct {
-	// Pushbullet - https://www.pushbullet.com/#settings/account
-	PushbulletToken  string `json:"pushbullet_token"`
-	PushbulletDevice string `json:"pushbullet_device"`
-
 	// Gotify - <gotify-server>/#/applications
 	GofifyServer string `json:"gotify_server"`
 	GofifyToken  string `json:"gotify_token"`

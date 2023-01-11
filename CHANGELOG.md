@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0]
+
+- Remove support for Pushbullet (unmaintained)
+- Update modules
+
+
 ## [1.0.2]
 
 - Switch to axllent/ghru

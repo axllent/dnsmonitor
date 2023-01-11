@@ -5,7 +5,7 @@ endif
 VERSION ?= "dev"
 LDFLAGS=-ldflags "-s -w -X main.version=${VERSION}"
 
-build = GOOS=$(1) GOARCH=$(2) go build ${LDFLAGS} -o dist/dnsmonitor_${VERSION}_$(1)_$(2) \
+build = GO386=softfloat GOOS=$(1) GOARCH=$(2) go build ${LDFLAGS} -o dist/dnsmonitor_${VERSION}_$(1)_$(2) \
 	&& bzip2 -f dist/dnsmonitor_${VERSION}_$(1)_$(2)
 
 main-build: *.go
@@ -16,7 +16,7 @@ clean:
 
 release:
 	rm -f dist/dnsmonitor_${VERSION}_*
-	$(call build,darwin,386)
+	$(call build,darwin,arm64)
 	$(call build,darwin,amd64)
 	$(call build,freebsd,386)
 	$(call build,freebsd,amd64)
@@ -31,4 +31,3 @@ release:
 	$(call build,openbsd,386)
 	$(call build,openbsd,amd64)
 	$(call build,openbsd,arm)
-	$(call build,solaris,amd64)
