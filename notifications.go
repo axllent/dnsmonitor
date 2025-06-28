@@ -8,29 +8,29 @@ import (
 )
 
 // SendNotifications will send a notification to all registered apps
-func SendNotifications(title, message, priority string) {
-	go NotifyGotify(title, message, priority)
+func sendNotifications(title, message, priority string) {
+	go notifyGotify(title, message, priority)
 }
 
 // NotifyGotify messages gotify
-func NotifyGotify(title, message, priority string) {
-	if config.GofifyServer != "" && config.GofifyToken != "" {
-		u, err := url.Parse(config.GofifyServer)
+func notifyGotify(title, message, priority string) {
+	if config.GotifyServer != "" && config.GotifyToken != "" {
+		u, err := url.Parse(config.GotifyServer)
 		if err != nil {
-			fmt.Println("Gotify:", err)
+			fmt.Println("Error parsing Gotify URL:", err.Error())
 			return
 		}
 
 		u.Path = path.Join(u.Path, "message")
 		queryString := u.Query()
-		queryString.Set("token", config.GofifyToken)
+		queryString.Set("token", config.GotifyToken)
 		u.RawQuery = queryString.Encode()
 		s := u.String()
 
 		_, err = http.PostForm(s,
 			url.Values{"message": {message}, "title": {title}, "priority": {priority}})
 		if err != nil {
-			fmt.Println("Gotify:", err)
+			fmt.Println("Gotify error:", err.Error())
 			return
 		}
 	}
