@@ -6,7 +6,7 @@ import (
 )
 
 // Config struct
-type Config struct {
+type configStruct struct {
 	// GotifyServer is the URL of the Gotify server
 	GotifyServer string `json:"gotify_server"`
 	// GotifyToken is the token for the Gotify server

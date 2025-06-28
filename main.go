@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/axllent/ghru"
+	"github.com/axllent/ghru/v2"
 	"github.com/spf13/pflag"
 )
 
@@ -25,11 +25,18 @@ var (
 	update      bool
 	version     = "dev"
 	configFile  string
-	config      Config
+	config      configStruct
+
+	ghruConf = ghru.Config{
+		Repo:           "axllent/dnsmonitor",
+		ArchiveName:    "dnsmonitor-{{.OS}}-{{.Arch}}",
+		BinaryName:     "dnsmonitor",
+		CurrentVersion: version,
+	}
 )
 
 // Domain struct
-type Domain struct {
+type domainStruct struct {
 	Name       string
 	LookupType string
 	IPs        []string
@@ -73,21 +80,37 @@ func main() {
 
 	if showVersion {
 		fmt.Printf("Version: %s\n", version)
-		latest, _, _, err := ghru.Latest("axllent/dnsmonitor", "dnsmonitor")
-		if err == nil && ghru.GreaterThan(latest, version) {
-			fmt.Printf("Update available: %s\nRun `%s -u` to update.\n", latest, os.Args[0])
+
+		release, err := ghruConf.Latest()
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(1)
 		}
-		return
+
+		// The latest version is the same version
+		if release.Tag == version {
+			os.Exit(0)
+		}
+
+		// A newer release is available
+		fmt.Printf(
+			"Update available: %s\nRun `%s -u` to update (requires read/write access to install directory).\n",
+			release.Tag,
+			os.Args[0],
+		)
+		os.Exit(0)
 	}
 
 	if update {
-		rel, err := ghru.Update("axllent/dnsmonitor", "dnsmonitor", version)
+		// Update the app
+		rel, err := ghruConf.SelfUpdate()
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println(err.Error())
 			os.Exit(1)
 		}
-		fmt.Printf("Updated %s to version %s\n", os.Args[0], rel)
-		return
+
+		fmt.Printf("Updated %s to version %s\n", os.Args[0], rel.Tag)
+		os.Exit(0)
 	}
 
 	configJSON, err := os.ReadFile(configFile)
@@ -107,7 +130,7 @@ func main() {
 		os.Exit(2)
 	}
 
-	domains := []*Domain{}
+	domains := []*domainStruct{}
 
 	// regex for type
 	reType := regexp.MustCompile(`^(a|mx|cname|txt|ns)\:([a-z0-9\.\-]{4,})$`)
@@ -131,7 +154,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		domains = append(domains, &Domain{domain, lookupType, nil})
+		domains = append(domains, &domainStruct{domain, lookupType, nil})
 	}
 
 	ticker := time.NewTicker(time.Duration(interval) * time.Minute)
