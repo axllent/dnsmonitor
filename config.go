@@ -7,13 +7,14 @@ import (
 
 // Config struct
 type Config struct {
-	// Gotify - <gotify-server>/#/applications
-	GofifyServer string `json:"gotify_server"`
-	GofifyToken  string `json:"gotify_token"`
+	// GotifyServer is the URL of the Gotify server
+	GotifyServer string `json:"gotify_server"`
+	// GotifyToken is the token for the Gotify server
+	GotifyToken string `json:"gotify_token"`
 }
 
 // HomeDir returns the user's home directory
-func HomeDir() string {
+func homeDir() string {
 	if runtime.GOOS == "windows" {
 		home := os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
 		if home == "" {

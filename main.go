@@ -1,10 +1,10 @@
+// Package main is the main application
 package main
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -21,7 +21,7 @@ var (
 	customDNS   string
 	interval    int
 	help        bool
-	showversion bool
+	showVersion bool
 	update      bool
 	version     = "dev"
 	configFile  string
@@ -39,14 +39,14 @@ func main() {
 
 	flag := pflag.NewFlagSet(os.Args[0], pflag.ExitOnError)
 
-	defaultConfig := HomeDir() + "/.config/dnsmonitor.json"
+	defaultConfig := homeDir() + "/.config/dnsmonitor.json"
 
 	flag.StringVarP(&configFile, "config", "c", defaultConfig, "config file")
 	flag.StringVarP(&customDNS, "dns", "d", "", "custom dns server ip (defaults to system DNS)")
 	flag.IntVarP(&interval, "interval", "i", 5, "interval to check in minutes")
 	flag.BoolVarP(&help, "help", "h", false, "help")
-	flag.MarkHidden("help")
-	flag.BoolVarP(&showversion, "version", "v", false, "show version")
+	_ = flag.MarkHidden("help")
+	flag.BoolVarP(&showVersion, "version", "v", false, "show version")
 	flag.BoolVarP(&update, "update", "u", false, "update to latest version")
 
 	flag.Usage = func() {
@@ -61,15 +61,18 @@ func main() {
 		flag.PrintDefaults()
 	}
 
-	flag.Parse(os.Args[1:])
+	if err := flag.Parse(os.Args[1:]); err != nil {
+		fmt.Println("Error parsing flags:", err)
+		os.Exit(1)
+	}
 
 	if help {
 		flag.Usage()
 		return
 	}
 
-	if showversion {
-		fmt.Println(fmt.Sprintf("Version: %s", version))
+	if showVersion {
+		fmt.Printf("Version: %s\n", version)
 		latest, _, _, err := ghru.Latest("axllent/dnsmonitor", "dnsmonitor")
 		if err == nil && ghru.GreaterThan(latest, version) {
 			fmt.Printf("Update available: %s\nRun `%s -u` to update.\n", latest, os.Args[0])
@@ -87,7 +90,7 @@ func main() {
 		return
 	}
 
-	configJSON, err := ioutil.ReadFile(configFile)
+	configJSON, err := os.ReadFile(configFile)
 	if err == nil {
 		err = json.Unmarshal(configJSON, &config)
 
@@ -124,7 +127,8 @@ func main() {
 		}
 
 		if !reDomain.MatchString(domain) {
-			log.Fatal(domain, "is not a valid domain")
+			fmt.Println("Not a valid domain:", domain)
+			os.Exit(1)
 		}
 
 		domains = append(domains, &Domain{domain, lookupType, nil})
@@ -136,24 +140,24 @@ func main() {
 
 		for _, domain := range domains {
 
-			ips := Lookup(domain.LookupType, domain.Name)
+			ips := lookup(domain.LookupType, domain.Name)
 
 			if domain.IPs == nil {
-				// initial DNS resolution - no alerts
-				log.Printf("Monitoring [%s] %s: %s\n", domain.LookupType, domain.Name, DNS2String(ips))
+				// initial DNS resolution
+				log.Printf("Monitoring [%s] %s: %s\n", domain.LookupType, domain.Name, dnsToString(ips))
 
 				title := fmt.Sprintf("Monitoring [%s] %s\n", domain.LookupType, domain.Name)
-				message := fmt.Sprintf("status: %s", DNS2String(ips))
+				message := fmt.Sprintf("status: %s", dnsToString(ips))
 
-				SendNotifications(title, message, "1")
-			} else if !Equal(domain.IPs, ips) {
+				sendNotifications(title, message, "1")
+			} else if !equal(domain.IPs, ips) {
 				// do stuff
-				log.Printf("[%s] %s UPDATED (%s)\n", domain.LookupType, domain.Name, DNS2String(ips))
+				log.Printf("[%s] %s UPDATED (%s)\n", domain.LookupType, domain.Name, dnsToString(ips))
 
 				title := fmt.Sprintf("UPDATED [%s] %s\n", domain.LookupType, domain.Name)
-				message := fmt.Sprintf("was: %s\nnow: %s", DNS2String(domain.IPs), DNS2String(ips))
+				message := fmt.Sprintf("was: %s\nnow: %s", dnsToString(domain.IPs), dnsToString(ips))
 
-				SendNotifications(title, message, "5")
+				sendNotifications(title, message, "5")
 			}
 
 			domain.IPs = ips
@@ -163,45 +167,46 @@ func main() {
 
 // Lookup will do a DNS lookup and
 // return an sorted array of results
-func Lookup(lookupType, ip string) []string {
+func lookup(lookupType, ip string) []string {
 	r := net.Resolver{}
 	if customDNS != "" {
 		r.PreferGo = true
-		r.Dial = CustomDialer
+		r.Dial = customDialer
 	}
 	ctx := context.Background()
 
 	result := []string{}
 
-	if lookupType == "A" {
+	switch lookupType {
+	case "A":
 		ipaddr, err := r.LookupIPAddr(ctx, ip)
 		if err == nil {
 			for _, v := range ipaddr {
-				result = append(result, fmt.Sprintf("%s", v.IP))
+				result = append(result, v.IP.String())
 			}
 		}
-	} else if lookupType == "CNAME" {
+	case "CNAME":
 		cname, err := r.LookupCNAME(ctx, ip)
 		if err == nil {
 			result = append(result, cname)
 		}
-	} else if lookupType == "MX" {
+	case "MX":
 		ipaddr, err := r.LookupMX(ctx, ip)
 		if err == nil {
 			for _, v := range ipaddr {
-				result = append(result, fmt.Sprintf("%s", v.Host))
+				result = append(result, v.Host)
 			}
 		}
-	} else if lookupType == "TXT" {
+	case "TXT":
 		ipaddr, err := r.LookupTXT(ctx, ip)
 		if err == nil {
 			result = ipaddr
 		}
-	} else if lookupType == "NS" {
+	case "NS":
 		ipaddr, err := r.LookupNS(ctx, ip)
 		if err == nil {
 			for _, v := range ipaddr {
-				result = append(result, fmt.Sprintf("%s", v.Host))
+				result = append(result, string(v.Host))
 			}
 		}
 	}
@@ -212,9 +217,9 @@ func Lookup(lookupType, ip string) []string {
 	return result
 }
 
-// DNS2String returns an IP slice as a string,
+// dnsToString returns an IP slice as a string,
 // or unresolved for return / output
-func DNS2String(results []string) string {
+func dnsToString(results []string) string {
 	if len(results) == 0 {
 		return "not found"
 	}
@@ -222,7 +227,7 @@ func DNS2String(results []string) string {
 }
 
 // Equal compares two slices
-func Equal(a, b []string) bool {
+func equal(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
 	}
@@ -234,18 +239,8 @@ func Equal(a, b []string) bool {
 	return true
 }
 
-// stringInSlice is a string-only version in php's in_array()
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
 // CustomDialer allows a custom DNS server to be set
-func CustomDialer(ctx context.Context, network, address string) (net.Conn, error) {
+func customDialer(ctx context.Context, _, _ string) (net.Conn, error) {
 	d := net.Dialer{}
 	return d.DialContext(ctx, "udp", customDNS+":53")
 }
