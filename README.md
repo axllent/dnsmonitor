@@ -71,7 +71,7 @@ dnsmonitor -u
 
 ## Installing from source
 
-Requires Go version 1.23 or higher:
+Requires Go:
 
 ```
 go get github.com/axllent/dnsmonitor@latest
