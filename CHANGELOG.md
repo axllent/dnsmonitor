@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.2.1]
+
+- Update Go dependencies
+- Update Go to 1.24
+- Update GitHub Actions scripts
+
 ## [1.2.0]
 
 - Refactor Gotify notification functions and improve error handling
