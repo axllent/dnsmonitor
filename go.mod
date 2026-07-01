@@ -3,7 +3,7 @@ module github.com/axllent/dnsmonitor
 go 1.25.0
 
 require (
-	github.com/axllent/ghru/v2 v2.2.0
+	github.com/axllent/ghru/v2 v2.2.3
 	github.com/spf13/pflag v1.0.10
 )
 
