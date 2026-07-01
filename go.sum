@@ -1,5 +1,5 @@
-github.com/axllent/ghru/v2 v2.2.0 h1:DzWyWPJL+3qSwvR2S4tTetOhVgP9XjJixng1Aax8GGo=
-github.com/axllent/ghru/v2 v2.2.0/go.mod h1:tyH60pqmLCDHd3UMOZyiedrYMFVLwBQqPQ5y8WLvDzA=
+github.com/axllent/ghru/v2 v2.2.3 h1:nLzbq7jLiYQMxYPU4uBdgKL4jzAaMkBfAif3igpGaaE=
+github.com/axllent/ghru/v2 v2.2.3/go.mod h1:tyH60pqmLCDHd3UMOZyiedrYMFVLwBQqPQ5y8WLvDzA=
 github.com/spf13/pflag v1.0.10 h1:4EBh2KAYBwaONj6b2Ye1GiHfwjqyROoF4RwYO+vPwFk=
 github.com/spf13/pflag v1.0.10/go.mod h1:McXfInJRrz4CZXVZOBLb0bTZqETkiAhM9Iw0y3An2Bg=
 golang.org/x/mod v0.34.0 h1:xIHgNUUnW6sYkcM5Jleh05DvLOtwc6RitGHbDk4akRI=
